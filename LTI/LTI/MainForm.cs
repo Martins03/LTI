@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Collections.Generic; // ← este aqui
 
 namespace MikrotikManagerApp
 {
@@ -153,6 +154,170 @@ namespace MikrotikManagerApp
         {
             await LoadBridgePorts();
         }
+
+
+        private async void btnGetSecurityProfiles_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/interface/wireless/security-profiles");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+
+                dgvSecurityProfiles.Rows.Clear();
+
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    string id = item.GetProperty(".id").GetString();
+                    string name = item.GetProperty("name").GetString();
+                    dgvSecurityProfiles.Rows.Add(id, name);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao carregar perfis: {ex.Message}", "Erro");
+            }
+        }
+
+
+
+        private async void btnAddSecurityProfile_Click(object sender, EventArgs e)
+        {
+            string name = Prompt.ShowDialog("Digite o nome do perfil (apenas letras, números e hífens):", "Criar Perfil");
+
+            if (string.IsNullOrWhiteSpace(name) || !System.Text.RegularExpressions.Regex.IsMatch(name, @"^[a-zA-Z0-9-]+$"))
+            {
+                MessageBox.Show("Nome inválido.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string psk = Prompt.ShowDialog("Digite a chave WPA2 (mínimo 8 caracteres):", "Chave de Segurança");
+
+            if (string.IsNullOrWhiteSpace(psk) || psk.Length < 8)
+            {
+                MessageBox.Show("A chave deve ter pelo menos 8 caracteres.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            try
+            {
+                var data = new Dictionary<string, object>
+{
+    { "name", name },
+    { "mode", "dynamic-keys" },
+    { "authentication-types", "wpa2-psk" },
+    { "wpa2-pre-shared-key", psk }
+};
+
+                var options = new JsonSerializerOptions { PropertyNamingPolicy = null };
+                var json = JsonSerializer.Serialize(data, options);
+                var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PutAsync($"{_baseUrl}/rest/interface/wireless/security-profiles", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show($"Perfil '{name}' criado com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    btnGetSecurityProfiles_Click(null, null);
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Erro ao criar perfil: {response.StatusCode}\n{error}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao criar perfil: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+
+
+
+
+
+
+
+        private async void btnEditSecurityProfile_Click(object sender, EventArgs e)
+        {
+            if (dgvSecurityProfiles.SelectedRows.Count > 0)
+            {
+                string id = dgvSecurityProfiles.SelectedRows[0].Cells[0].Value.ToString();
+                string currentName = dgvSecurityProfiles.SelectedRows[0].Cells[1].Value.ToString();
+
+                string newName = Prompt.ShowDialog("Novo nome do perfil:", "Editar Perfil");
+
+                if (string.IsNullOrWhiteSpace(newName)) return;
+
+                var profile = new { name = newName };
+
+                var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_baseUrl}/rest/interface/wireless/security-profiles/{id}")
+                {
+                    Content = new StringContent(JsonSerializer.Serialize(profile), System.Text.Encoding.UTF8, "application/json")
+                };
+
+                try
+                {
+                    var response = await _httpClient.SendAsync(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Perfil atualizado!");
+                        btnGetSecurityProfiles_Click(null, null);
+                    }
+                    else
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Erro: {error}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro: {ex.Message}");
+                }
+            }
+        }
+
+
+        private async void btnDeleteSecurityProfile_Click(object sender, EventArgs e)
+        {
+            if (dgvSecurityProfiles.SelectedRows.Count > 0)
+            {
+                string id = dgvSecurityProfiles.SelectedRows[0].Cells[0].Value.ToString();
+
+                var result = MessageBox.Show("Deseja realmente apagar este perfil?", "Confirmar", MessageBoxButtons.YesNo);
+                if (result != DialogResult.Yes) return;
+
+                try
+                {
+                    var response = await _httpClient.DeleteAsync($"{_baseUrl}/rest/interface/wireless/security-profiles/{id}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Perfil apagado.");
+                        btnGetSecurityProfiles_Click(null, null);
+                    }
+                    else
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Erro: {error}");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro: {ex.Message}");
+                }
+            }
+        }
+
+
+
+
+
+
 
 
         private async Task LoadBridgePorts()

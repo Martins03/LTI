@@ -8,11 +8,13 @@
         private System.Windows.Forms.TabPage tabInterfaces;
         private System.Windows.Forms.TabPage tabWireless;
         private System.Windows.Forms.TabPage tabBridges;
+        private System.Windows.Forms.TabPage tabSecurityProfiles;
 
         private System.Windows.Forms.DataGridView dgvInterfaces;
         private System.Windows.Forms.DataGridView dgvWireless;
         private System.Windows.Forms.DataGridView dgvBridges;
         private System.Windows.Forms.DataGridView dgvBridgePorts;
+        private System.Windows.Forms.DataGridView dgvSecurityProfiles;
 
         private System.Windows.Forms.Button btnGetInterfaces;
         private System.Windows.Forms.Button btnGetWireless;
@@ -21,6 +23,11 @@
         private System.Windows.Forms.Button btnDeleteBridge;
         private System.Windows.Forms.Button btnEditBridge;
         private System.Windows.Forms.Button btnGetBridgePorts;
+
+        private System.Windows.Forms.Button btnGetSecurityProfiles;
+        private System.Windows.Forms.Button btnAddSecurityProfile;
+        private System.Windows.Forms.Button btnEditSecurityProfile;
+        private System.Windows.Forms.Button btnDeleteSecurityProfile;
 
         protected override void Dispose(bool disposing)
         {
@@ -35,11 +42,13 @@
             this.tabInterfaces = new System.Windows.Forms.TabPage();
             this.tabWireless = new System.Windows.Forms.TabPage();
             this.tabBridges = new System.Windows.Forms.TabPage();
+            this.tabSecurityProfiles = new System.Windows.Forms.TabPage();
 
             this.dgvInterfaces = new System.Windows.Forms.DataGridView();
             this.dgvWireless = new System.Windows.Forms.DataGridView();
             this.dgvBridges = new System.Windows.Forms.DataGridView();
             this.dgvBridgePorts = new System.Windows.Forms.DataGridView();
+            this.dgvSecurityProfiles = new System.Windows.Forms.DataGridView();
 
             this.btnGetInterfaces = new System.Windows.Forms.Button();
             this.btnGetWireless = new System.Windows.Forms.Button();
@@ -49,20 +58,28 @@
             this.btnEditBridge = new System.Windows.Forms.Button();
             this.btnGetBridgePorts = new System.Windows.Forms.Button();
 
+            this.btnGetSecurityProfiles = new System.Windows.Forms.Button();
+            this.btnAddSecurityProfile = new System.Windows.Forms.Button();
+            this.btnEditSecurityProfile = new System.Windows.Forms.Button();
+            this.btnDeleteSecurityProfile = new System.Windows.Forms.Button();
+
             this.tabControl.SuspendLayout();
             this.tabInterfaces.SuspendLayout();
             this.tabWireless.SuspendLayout();
             this.tabBridges.SuspendLayout();
+            this.tabSecurityProfiles.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvInterfaces)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvWireless)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBridges)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBridgePorts)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSecurityProfiles)).BeginInit();
             this.SuspendLayout();
 
             // tabControl
             this.tabControl.Controls.Add(this.tabInterfaces);
             this.tabControl.Controls.Add(this.tabWireless);
             this.tabControl.Controls.Add(this.tabBridges);
+            this.tabControl.Controls.Add(this.tabSecurityProfiles);
             this.tabControl.Location = new System.Drawing.Point(12, 12);
             this.tabControl.Size = new System.Drawing.Size(760, 537);
             this.tabControl.TabIndex = 0;
@@ -86,6 +103,14 @@
             this.tabBridges.Controls.Add(this.dgvBridges);
             this.tabBridges.Controls.Add(this.dgvBridgePorts);
             this.tabBridges.Text = "Bridges";
+
+            // tabSecurityProfiles
+            this.tabSecurityProfiles.Controls.Add(this.btnGetSecurityProfiles);
+            this.tabSecurityProfiles.Controls.Add(this.btnAddSecurityProfile);
+            this.tabSecurityProfiles.Controls.Add(this.btnEditSecurityProfile);
+            this.tabSecurityProfiles.Controls.Add(this.btnDeleteSecurityProfile);
+            this.tabSecurityProfiles.Controls.Add(this.dgvSecurityProfiles);
+            this.tabSecurityProfiles.Text = "Perfis de Segurança";
 
             // dgvInterfaces
             this.dgvInterfaces.Location = new System.Drawing.Point(6, 50);
@@ -116,47 +141,71 @@
             this.dgvBridgePorts.Columns[0].Name = "Bridge";
             this.dgvBridgePorts.Columns[1].Name = "Interface";
 
-            // btnGetInterfaces
+            // dgvSecurityProfiles
+            this.dgvSecurityProfiles.Location = new System.Drawing.Point(6, 50);
+            this.dgvSecurityProfiles.Size = new System.Drawing.Size(740, 420);
+            this.dgvSecurityProfiles.ColumnCount = 2;
+            this.dgvSecurityProfiles.Columns[0].Name = "ID";
+            this.dgvSecurityProfiles.Columns[1].Name = "Nome";
+
+            // Botões de Interfaces
             this.btnGetInterfaces.Location = new System.Drawing.Point(6, 10);
             this.btnGetInterfaces.Size = new System.Drawing.Size(150, 30);
             this.btnGetInterfaces.Text = "Listar Interfaces";
             this.btnGetInterfaces.Click += new System.EventHandler(this.btnGetInterfaces_Click);
 
-            // btnGetWireless
+            // Botões de Wireless
             this.btnGetWireless.Location = new System.Drawing.Point(6, 10);
             this.btnGetWireless.Size = new System.Drawing.Size(150, 30);
             this.btnGetWireless.Text = "Listar Wireless";
             this.btnGetWireless.Click += new System.EventHandler(this.btnGetWireless_Click);
 
-            // btnGetBridges
+            // Botões de Bridges
             this.btnGetBridges.Location = new System.Drawing.Point(6, 10);
             this.btnGetBridges.Size = new System.Drawing.Size(150, 30);
             this.btnGetBridges.Text = "Listar Bridges";
             this.btnGetBridges.Click += new System.EventHandler(this.btnGetBridges_Click);
 
-            // btnAddBridge
             this.btnAddBridge.Location = new System.Drawing.Point(162, 10);
             this.btnAddBridge.Size = new System.Drawing.Size(150, 30);
             this.btnAddBridge.Text = "Criar Bridge";
             this.btnAddBridge.Click += new System.EventHandler(this.btnAddBridge_Click);
 
-            // btnDeleteBridge
             this.btnDeleteBridge.Location = new System.Drawing.Point(318, 10);
             this.btnDeleteBridge.Size = new System.Drawing.Size(150, 30);
             this.btnDeleteBridge.Text = "Apagar Bridge";
             this.btnDeleteBridge.Click += new System.EventHandler(this.btnDeleteBridge_Click);
 
-            // btnEditBridge
             this.btnEditBridge.Location = new System.Drawing.Point(474, 10);
             this.btnEditBridge.Size = new System.Drawing.Size(150, 30);
             this.btnEditBridge.Text = "Editar Bridge";
             this.btnEditBridge.Click += new System.EventHandler(this.btnEditBridge_Click);
 
-            // btnGetBridgePorts
             this.btnGetBridgePorts.Location = new System.Drawing.Point(630, 10);
             this.btnGetBridgePorts.Size = new System.Drawing.Size(150, 30);
             this.btnGetBridgePorts.Text = "Listar Portas";
             this.btnGetBridgePorts.Click += new System.EventHandler(this.btnGetBridgePorts_Click);
+
+            // Botões de Perfis de Segurança
+            this.btnGetSecurityProfiles.Location = new System.Drawing.Point(6, 10);
+            this.btnGetSecurityProfiles.Size = new System.Drawing.Size(150, 30);
+            this.btnGetSecurityProfiles.Text = "Listar Perfis";
+            this.btnGetSecurityProfiles.Click += new System.EventHandler(this.btnGetSecurityProfiles_Click);
+
+            this.btnAddSecurityProfile.Location = new System.Drawing.Point(162, 10);
+            this.btnAddSecurityProfile.Size = new System.Drawing.Size(150, 30);
+            this.btnAddSecurityProfile.Text = "Criar Perfil";
+            this.btnAddSecurityProfile.Click += new System.EventHandler(this.btnAddSecurityProfile_Click);
+
+            this.btnEditSecurityProfile.Location = new System.Drawing.Point(318, 10);
+            this.btnEditSecurityProfile.Size = new System.Drawing.Size(150, 30);
+            this.btnEditSecurityProfile.Text = "Editar Perfil";
+            this.btnEditSecurityProfile.Click += new System.EventHandler(this.btnEditSecurityProfile_Click);
+
+            this.btnDeleteSecurityProfile.Location = new System.Drawing.Point(474, 10);
+            this.btnDeleteSecurityProfile.Size = new System.Drawing.Size(150, 30);
+            this.btnDeleteSecurityProfile.Text = "Apagar Perfil";
+            this.btnDeleteSecurityProfile.Click += new System.EventHandler(this.btnDeleteSecurityProfile_Click);
 
             // MainForm
             this.ClientSize = new System.Drawing.Size(784, 561);
@@ -168,10 +217,12 @@
             this.tabInterfaces.ResumeLayout(false);
             this.tabWireless.ResumeLayout(false);
             this.tabBridges.ResumeLayout(false);
+            this.tabSecurityProfiles.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvInterfaces)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvWireless)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBridges)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvBridgePorts)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvSecurityProfiles)).EndInit();
             this.ResumeLayout(false);
         }
     }
