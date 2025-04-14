@@ -29,6 +29,14 @@
         private System.Windows.Forms.Button btnEditSecurityProfile;
         private System.Windows.Forms.Button btnDeleteSecurityProfile;
 
+        private System.Windows.Forms.TabPage tabIP;
+        private System.Windows.Forms.DataGridView dgvIPAddresses;
+        private System.Windows.Forms.Button btnGetIP;
+        private System.Windows.Forms.Button btnAddIP;
+        private System.Windows.Forms.Button btnEditIP;
+        private System.Windows.Forms.Button btnDeleteIP;
+
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -111,6 +119,53 @@
             this.tabSecurityProfiles.Controls.Add(this.btnDeleteSecurityProfile);
             this.tabSecurityProfiles.Controls.Add(this.dgvSecurityProfiles);
             this.tabSecurityProfiles.Text = "Perfis de Segurança";
+
+
+
+            // tabIP
+            this.tabIP = new System.Windows.Forms.TabPage();
+            this.dgvIPAddresses = new System.Windows.Forms.DataGridView();
+            this.btnGetIP = new System.Windows.Forms.Button();
+            this.btnAddIP = new System.Windows.Forms.Button();
+            this.btnEditIP = new System.Windows.Forms.Button();
+            this.btnDeleteIP = new System.Windows.Forms.Button();
+
+            this.tabIP.Text = "Endereços IP";
+            this.tabIP.Controls.Add(this.btnGetIP);
+            this.tabIP.Controls.Add(this.btnAddIP);
+            this.tabIP.Controls.Add(this.btnEditIP);
+            this.tabIP.Controls.Add(this.btnDeleteIP);
+            this.tabIP.Controls.Add(this.dgvIPAddresses);
+
+            // posicionamento
+            this.tabControl.Controls.Add(this.tabIP);
+
+            this.btnGetIP.Location = new System.Drawing.Point(6, 10);
+            this.btnGetIP.Size = new System.Drawing.Size(150, 30);
+            this.btnGetIP.Text = "Listar IPs";
+            this.btnGetIP.Click += new System.EventHandler(this.btnGetIP_Click);
+
+            this.btnAddIP.Location = new System.Drawing.Point(162, 10);
+            this.btnAddIP.Size = new System.Drawing.Size(150, 30);
+            this.btnAddIP.Text = "Adicionar IP";
+            this.btnAddIP.Click += new System.EventHandler(this.btnAddIP_Click);
+
+            this.btnEditIP.Location = new System.Drawing.Point(318, 10);
+            this.btnEditIP.Size = new System.Drawing.Size(150, 30);
+            this.btnEditIP.Text = "Editar IP";
+            this.btnEditIP.Click += new System.EventHandler(this.btnEditIP_Click);
+
+            this.btnDeleteIP.Location = new System.Drawing.Point(474, 10);
+            this.btnDeleteIP.Size = new System.Drawing.Size(150, 30);
+            this.btnDeleteIP.Text = "Apagar IP";
+            this.btnDeleteIP.Click += new System.EventHandler(this.btnDeleteIP_Click);
+
+            this.dgvIPAddresses.Location = new System.Drawing.Point(6, 50);
+            this.dgvIPAddresses.Size = new System.Drawing.Size(740, 420);
+            this.dgvIPAddresses.ColumnCount = 3;
+            this.dgvIPAddresses.Columns[0].Name = "ID";
+            this.dgvIPAddresses.Columns[1].Name = "Endereço";
+            this.dgvIPAddresses.Columns[2].Name = "Interface";
 
             // dgvInterfaces
             this.dgvInterfaces.Location = new System.Drawing.Point(6, 50);

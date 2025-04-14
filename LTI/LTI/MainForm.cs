@@ -315,6 +315,125 @@ namespace MikrotikManagerApp
 
 
 
+        private async void btnGetIP_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/ip/address");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+
+                dgvIPAddresses.Rows.Clear();
+
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    string id = item.GetProperty(".id").GetString();
+                    string address = item.GetProperty("address").GetString();
+                    string iface = item.GetProperty("interface").GetString();
+                    dgvIPAddresses.Rows.Add(id, address, iface);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao listar IPs: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+        private async void btnAddIP_Click(object sender, EventArgs e)
+        {
+            string address = Prompt.ShowDialog("Digite o IP (ex: 192.168.88.10/24):", "Novo Endereço IP");
+            string iface = Prompt.ShowDialog("Digite a interface (ex: ether1):", "Interface");
+
+            if (string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(iface)) return;
+
+            var data = new Dictionary<string, string>
+    {
+        { "address", address },
+        { "interface", iface }
+    };
+
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync($"{_baseUrl}/rest/ip/address", content);
+            if (response.IsSuccessStatusCode)
+            {
+                MessageBox.Show("Endereço IP adicionado com sucesso!");
+                btnGetIP_Click(null, null);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Erro ao adicionar IP: {error}");
+            }
+        }
+
+        private async void btnEditIP_Click(object sender, EventArgs e)
+        {
+            if (dgvIPAddresses.SelectedRows.Count == 0) return;
+
+            string id = dgvIPAddresses.SelectedRows[0].Cells[0].Value.ToString();
+            string currentAddr = dgvIPAddresses.SelectedRows[0].Cells[1].Value.ToString();
+            string currentIface = dgvIPAddresses.SelectedRows[0].Cells[2].Value.ToString();
+
+            string newAddr = Prompt.ShowDialog("Novo endereço IP:", "Editar IP", currentAddr);
+            string newIface = Prompt.ShowDialog("Nova interface:", "Editar Interface", currentIface);
+
+            if (string.IsNullOrWhiteSpace(newAddr) || string.IsNullOrWhiteSpace(newIface)) return;
+
+            var data = new Dictionary<string, string>
+    {
+        { "address", newAddr },
+        { "interface", newIface }
+    };
+
+            var content = new StringContent(JsonSerializer.Serialize(data), System.Text.Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_baseUrl}/rest/ip/address/{id}")
+            {
+                Content = content
+            };
+
+            var response = await _httpClient.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                MessageBox.Show("IP atualizado.");
+                btnGetIP_Click(null, null);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Erro ao atualizar IP: {error}");
+            }
+        }
+
+        private async void btnDeleteIP_Click(object sender, EventArgs e)
+        {
+            if (dgvIPAddresses.SelectedRows.Count == 0) return;
+
+            string id = dgvIPAddresses.SelectedRows[0].Cells[0].Value.ToString();
+
+            var result = MessageBox.Show("Deseja realmente apagar este IP?", "Confirmar", MessageBoxButtons.YesNo);
+            if (result != DialogResult.Yes) return;
+
+            var response = await _httpClient.DeleteAsync($"{_baseUrl}/rest/ip/address/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                MessageBox.Show("IP removido.");
+                btnGetIP_Click(null, null);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Erro ao apagar IP: {error}");
+            }
+        }
+
+
+
+
 
 
 
@@ -377,17 +496,23 @@ namespace MikrotikManagerApp
 
     public static class Prompt
     {
-        public static string ShowDialog(string text, string caption)
+        public static string ShowDialog(string text, string caption, string defaultValue = "")
         {
             Form prompt = new Form()
             {
                 Width = 300,
                 Height = 150,
-                Text = caption
+                Text = caption,
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterScreen,
+                MinimizeBox = false,
+                MaximizeBox = false
             };
-            Label lbl = new Label() { Left = 10, Top = 20, Text = text };
-            TextBox inputBox = new TextBox() { Left = 10, Top = 50, Width = 250 };
-            Button confirmation = new Button() { Text = "OK", Left = 10, Width = 250, Top = 80 };
+
+            Label lbl = new Label() { Left = 10, Top = 20, Width = 260, Text = text };
+            TextBox inputBox = new TextBox() { Left = 10, Top = 50, Width = 260, Text = defaultValue };
+            Button confirmation = new Button() { Text = "OK", Left = 10, Width = 260, Top = 80 };
+
             confirmation.Click += (sender, e) => { prompt.DialogResult = DialogResult.OK; prompt.Close(); };
             prompt.Controls.Add(lbl);
             prompt.Controls.Add(inputBox);
@@ -397,4 +522,5 @@ namespace MikrotikManagerApp
             return prompt.ShowDialog() == DialogResult.OK ? inputBox.Text : "";
         }
     }
+
 }
