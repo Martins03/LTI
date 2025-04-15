@@ -37,6 +37,13 @@
         private System.Windows.Forms.Button btnDeleteIP;
 
 
+        private System.Windows.Forms.TabPage tabWireGuard;
+        private System.Windows.Forms.DataGridView dgvWireGuard;
+        private System.Windows.Forms.Button btnGetWG;
+        private System.Windows.Forms.Button btnAddWG;
+        private System.Windows.Forms.Button btnDeleteWG;
+
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -51,6 +58,9 @@
             this.tabWireless = new System.Windows.Forms.TabPage();
             this.tabBridges = new System.Windows.Forms.TabPage();
             this.tabSecurityProfiles = new System.Windows.Forms.TabPage();
+
+
+
 
             this.dgvInterfaces = new System.Windows.Forms.DataGridView();
             this.dgvWireless = new System.Windows.Forms.DataGridView();
@@ -261,6 +271,48 @@
             this.btnDeleteSecurityProfile.Size = new System.Drawing.Size(150, 30);
             this.btnDeleteSecurityProfile.Text = "Apagar Perfil";
             this.btnDeleteSecurityProfile.Click += new System.EventHandler(this.btnDeleteSecurityProfile_Click);
+
+
+
+
+            // WireGuard tab
+            this.tabWireGuard = new System.Windows.Forms.TabPage();
+            this.dgvWireGuard = new System.Windows.Forms.DataGridView();
+            this.btnGetWG = new System.Windows.Forms.Button();
+            this.btnAddWG = new System.Windows.Forms.Button();
+            this.btnDeleteWG = new System.Windows.Forms.Button();
+
+            this.tabWireGuard.Text = "WireGuard";
+            this.tabWireGuard.Controls.Add(this.btnGetWG);
+            this.tabWireGuard.Controls.Add(this.btnAddWG);
+            this.tabWireGuard.Controls.Add(this.btnDeleteWG);
+            this.tabWireGuard.Controls.Add(this.dgvWireGuard);
+
+            this.tabControl.Controls.Add(this.tabWireGuard);
+
+            // Buttons WireGuard
+            this.btnGetWG.Location = new System.Drawing.Point(6, 10);
+            this.btnGetWG.Size = new System.Drawing.Size(150, 30);
+            this.btnGetWG.Text = "Listar WG";
+            this.btnGetWG.Click += new System.EventHandler(this.btnGetWG_Click);
+
+            this.btnAddWG.Location = new System.Drawing.Point(162, 10);
+            this.btnAddWG.Size = new System.Drawing.Size(150, 30);
+            this.btnAddWG.Text = "Criar WG";
+            this.btnAddWG.Click += new System.EventHandler(this.btnAddWG_Click);
+
+            this.btnDeleteWG.Location = new System.Drawing.Point(318, 10);
+            this.btnDeleteWG.Size = new System.Drawing.Size(150, 30);
+            this.btnDeleteWG.Text = "Apagar WG";
+            this.btnDeleteWG.Click += new System.EventHandler(this.btnDeleteWG_Click);
+
+            // DataGridView WireGuard
+            this.dgvWireGuard.Location = new System.Drawing.Point(6, 50);
+            this.dgvWireGuard.Size = new System.Drawing.Size(740, 420);
+            this.dgvWireGuard.ColumnCount = 3;
+            this.dgvWireGuard.Columns[0].Name = "ID";
+            this.dgvWireGuard.Columns[1].Name = "Nome";
+            this.dgvWireGuard.Columns[2].Name = "Endereço";
 
             // MainForm
             this.ClientSize = new System.Drawing.Size(784, 561);

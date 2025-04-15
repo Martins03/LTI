@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Collections.Generic; // ← este aqui
 
+
 namespace MikrotikManagerApp
 {
     public partial class MainForm : Form
@@ -430,6 +431,89 @@ namespace MikrotikManagerApp
                 MessageBox.Show($"Erro ao apagar IP: {error}");
             }
         }
+
+
+
+        private async void btnGetWG_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/interface/wireguard");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+
+                dgvWireGuard.Rows.Clear();
+
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    string id = item.GetProperty(".id").GetString();
+                    string name = item.GetProperty("name").GetString();
+                    string address = item.TryGetProperty("listen-port", out var addrProp) ? addrProp.GetRawText() : "N/A";
+                    dgvWireGuard.Rows.Add(id, name, address);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao listar WireGuard: {ex.Message}", "Erro");
+            }
+        }
+
+        private async void btnAddWG_Click(object sender, EventArgs e)
+        {
+            string name = Prompt.ShowDialog("Nome da interface WireGuard:", "Criar WireGuard");
+            if (string.IsNullOrWhiteSpace(name)) return;
+
+            string listenPort = Prompt.ShowDialog("Porta de escuta (ex: 51820):", "Porta WireGuard");
+            if (string.IsNullOrWhiteSpace(listenPort)) return;
+
+            var data = new Dictionary<string, object>
+    {
+        {"name", name},
+        {"listen-port", listenPort}
+    };
+
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PutAsync($"{_baseUrl}/rest/interface/wireguard", content);
+            if (response.IsSuccessStatusCode)
+            {
+                MessageBox.Show("WireGuard criado com sucesso!");
+                btnGetWG_Click(null, null);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Erro ao criar WireGuard: {error}");
+            }
+        }
+
+        private async void btnDeleteWG_Click(object sender, EventArgs e)
+        {
+            if (dgvWireGuard.SelectedRows.Count == 0) return;
+
+            string id = dgvWireGuard.SelectedRows[0].Cells[0].Value.ToString();
+            var result = MessageBox.Show("Deseja realmente apagar esta interface WireGuard?", "Confirmar", MessageBoxButtons.YesNo);
+            if (result != DialogResult.Yes) return;
+
+            var response = await _httpClient.DeleteAsync($"{_baseUrl}/rest/interface/wireguard/{id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                MessageBox.Show("WireGuard apagado.");
+                btnGetWG_Click(null, null);
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                MessageBox.Show($"Erro ao apagar WireGuard: {error}");
+            }
+        }
+
+
+
 
 
 
