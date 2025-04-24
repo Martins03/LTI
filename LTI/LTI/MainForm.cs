@@ -4,7 +4,9 @@ using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Collections.Generic; // ← este aqui
+using System.Collections.Generic;
+using MikrotikManagerApp;
+using System.Text;
 
 
 namespace MikrotikManagerApp
@@ -16,9 +18,16 @@ namespace MikrotikManagerApp
 
         public MainForm(HttpClient client, string baseUrl)
         {
-            InitializeComponent();
-            _httpClient = client;
-            _baseUrl = baseUrl;
+            try
+            {
+                InitializeComponent();
+                _httpClient = client;
+                _baseUrl = baseUrl;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao iniciar MainForm: " + ex.Message);
+            }
         }
 
         private async void btnGetInterfaces_Click(object sender, EventArgs e)
@@ -35,6 +44,8 @@ namespace MikrotikManagerApp
         {
             await LoadData("interface/bridge", dgvBridges);
         }
+
+
 
         private async void btnAddBridge_Click(object sender, EventArgs e)
         {
@@ -512,10 +523,270 @@ namespace MikrotikManagerApp
             }
         }
 
+        private async void btnListarDHCP_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Chama a API para listar os servidores DHCP
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/ip/dhcp-server");
+                response.EnsureSuccessStatusCode();
+
+                // Lê o conteúdo da resposta
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+
+                // Limpa o DataGridView antes de adicionar novos dados
+                dgvDHCP.Rows.Clear();
+
+                // Adiciona os dados ao DataGridView
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    string id = item.GetProperty(".id").GetString();
+                    string name = item.GetProperty("name").GetString();
+                    string interfaceName = item.GetProperty("interface").GetString();
+                    string pool = item.GetProperty("address-pool").GetString();
+                    dgvDHCP.Rows.Add(id, name, interfaceName, pool);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro ao listar DHCP: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnAddDHCP_Click(object sender, EventArgs e)
+        {
+            using (var form = new CriarDHCPForm(_httpClient, _baseUrl))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    btnListarDHCP_Click(null, null);
+                }
+            }
+        }
+
+        private void btnEditDHCP_Click(object sender, EventArgs e)
+        {
+            if (dgvDHCP.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Seleciona uma entrada para editar.");
+                return;
+            }
+
+            string id = dgvDHCP.SelectedRows[0].Cells[0].Value.ToString();
+
+            using (var form = new EditarDHCPForm(_httpClient, _baseUrl, id))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    btnListarDHCP_Click(null, null);
+                }
+            }
+        }
+
+        private async void btnDeleteDHCP_Click(object sender, EventArgs e)
+        {
+            if (dgvDHCP.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Seleciona um servidor DHCP para apagar.", "Aviso");
+                return;
+            }
+
+            string id = dgvDHCP.SelectedRows[0].Cells[0].Value.ToString();
+            string name = dgvDHCP.SelectedRows[0].Cells[1].Value.ToString();
+
+            var confirm = MessageBox.Show($"Tens a certeza que queres apagar o servidor '{name}'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (confirm != DialogResult.Yes) return;
+
+            try
+            {
+                var response = await _httpClient.DeleteAsync($"{_baseUrl}/rest/ip/dhcp-server/{id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Servidor DHCP apagado com sucesso.");
+                    btnListarDHCP_Click(null, null);
+                }
+                else
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Erro ao apagar: {error}", "Erro");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro: {ex.Message}", "Erro");
+            }
+        }
+
+        private async void btnToggleWireless_Click(object sender, EventArgs e)
+        {
+            if (dgvWireless.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Seleciona uma interface wireless.");
+                return;
+            }
+
+            string id = dgvWireless.SelectedRows[0].Cells[0].Value.ToString();
+            string name = dgvWireless.SelectedRows[0].Cells[1].Value.ToString();
+
+            try
+            {
+                // Obter info atual da interface wireless
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/interface/wireless/{id}");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+                bool disabled = false;
+                if (doc.RootElement.TryGetProperty("disabled", out var disabledProp))
+                {
+                    disabled = disabledProp.GetString() == "true";
+                }
+
+                // Inverter estado
+                var body = new Dictionary<string, object>
+                {
+                    { "disabled", !disabled }
+                };
+
+                var content = new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, "application/json");
+                var patchRequest = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_baseUrl}/rest/interface/wireless/{id}")
+                {
+                    Content = content
+                };
+
+                var patchResponse = await _httpClient.SendAsync(patchRequest);
+                if (patchResponse.IsSuccessStatusCode)
+                {
+                    MessageBox.Show($"{(disabled ? "Ativada" : "Desativada")} com sucesso.");
+                    btnGetWireless_Click(null, null); // Atualiza lista
+                }
+                else
+                {
+                    string error = await patchResponse.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Erro ao atualizar: {error}");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro: {ex.Message}");
+            }
+        }
+
+        private void btnConfigurarWireless_Click(object sender, EventArgs e)
+        {
+            using (var form = new ConfigurarWirelessForm(_httpClient, _baseUrl))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    btnGetWireless_Click(null, null); // Atualiza a lista após configuração
+                }
+            }
+        }
+
+        private void btnConfigurarDNS_Click(object sender, EventArgs e)
+        {
+            using (var form = new ConfigurarDNSForm(_httpClient, _baseUrl))
+            {
+                form.ShowDialog();
+            }
+        }
+
+        private async void btnListarRotas_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/ip/route");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+
+                dgvRoutes.Rows.Clear();
+
+                foreach (var item in doc.RootElement.EnumerateArray())
+                {
+                    string id = item.GetProperty(".id").GetString();
+                    string dst = item.TryGetProperty("dst-address", out var dstProp) ? dstProp.GetString() ?? "" : "";
+                    string gateway = item.TryGetProperty("gateway", out var gwProp) ? gwProp.GetString() ?? "" : "";
+                    dgvRoutes.Rows.Add(id, dst, gateway);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao listar rotas: " + ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnCriarRota_Click(object sender, EventArgs e)
+        {
+            using (var form = new CriarRotaForm(_httpClient, _baseUrl))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    btnListarRotas_Click(null, null); // Atualiza a lista após criação
+                }
+            }
+        }
+
+        private void btnEditarRota_Click(object sender, EventArgs e)
+        {
+            if (dgvRoutes.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Seleciona uma rota para editar.", "Aviso");
+                return;
+            }
+
+            string id = dgvRoutes.SelectedRows[0].Cells[0].Value.ToString();
+            string dst = dgvRoutes.SelectedRows[0].Cells[1].Value.ToString();
+            string gw = dgvRoutes.SelectedRows[0].Cells[2].Value.ToString();
+            string distance = "1"; 
+
+            using (var form = new EditarRotaForm(_httpClient, _baseUrl, id, dst, gw, distance))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    btnListarRotas_Click(null, null); // Atualiza a tabela
+                }
+            }
+        }
 
 
+        private async void btnApagarRota_Click(object sender, EventArgs e)
+        {
+            if (dgvRoutes.SelectedRows.Count > 0)
+            {
+                string id = dgvRoutes.SelectedRows[0].Cells[0].Value.ToString();
+                string dst = dgvRoutes.SelectedRows[0].Cells[1].Value.ToString();
 
+                var result = MessageBox.Show($"Deseja realmente apagar a rota para '{dst}'?", "Confirmar", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                if (result != DialogResult.Yes) return;
 
+                try
+                {
+                    var response = await _httpClient.DeleteAsync($"{_baseUrl}/rest/ip/route/{id}");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        MessageBox.Show("Rota apagada com sucesso.");
+                        btnListarRotas_Click(null, null);
+                    }
+                    else
+                    {
+                        string error = await response.Content.ReadAsStringAsync();
+                        MessageBox.Show($"Erro ao apagar rota: {error}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Erro: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Seleciona uma rota para apagar.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
 
 
 
@@ -568,7 +839,17 @@ namespace MikrotikManagerApp
                     string id = item.GetProperty(".id").GetString();
                     string name = item.GetProperty("name").GetString();
                     string type = item.TryGetProperty("type", out var t) ? t.GetString() : "";
-                    grid.Rows.Add(id, name, type);
+
+                    // Verifica se é a grid de wireless (tem 3 colunas)
+                    if (grid == dgvWireless && item.TryGetProperty("disabled", out var disabledProp))
+                    {
+                        string estado = disabledProp.GetString() == "true" ? "Desativada" : "Ativa";
+                        grid.Rows.Add(id, name, estado);
+                    }
+                    else
+                    {
+                        grid.Rows.Add(id, name, type);
+                    }
                 }
             }
             catch (Exception ex)

@@ -89,7 +89,49 @@
     <Compile Include="LoginForm.Designer.cs">
       <DependentUpon>LoginForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Program.cs" />
+	  
+	 <Compile Include="CriarDHCPForm.cs">
+		  <SubType>Form</SubType>
+	 </Compile>
+	 <Compile Include="CriarDHCPForm.Designer.cs">
+		  <DependentUpon>CriarDHCPForm.cs</DependentUpon>
+	 </Compile>
+	  <Compile Include="EditarDHCPForm.cs">
+		  <SubType>Form</SubType>
+	  </Compile>
+	  <Compile Include="EditarDHCPForm.Designer.cs">
+		  <DependentUpon>EditarDHCPForm.cs</DependentUpon>
+	  </Compile>
+
+	  <Compile Include="ConfigurarWirelessForm.cs">
+		  <SubType>Form</SubType>
+	  </Compile>
+	  <Compile Include="ConfigurarWirelessForm.Designer.cs">
+		  <DependentUpon>ConfigurarWirelessForm.cs</DependentUpon>
+	  </Compile>
+
+	  <Compile Include="ConfigurarDNSForm.cs">
+		  <SubType>Form</SubType>
+	  </Compile>
+	  <Compile Include="ConfigurarDNSForm.Designer.cs">
+		  <DependentUpon>ConfigurarDNSForm.cs</DependentUpon>
+	  </Compile>
+
+	  <Compile Include="CriarRotaForm.cs">
+		  <SubType>Form</SubType>
+	  </Compile>
+	  <Compile Include="CriarRotaForm.Designer.cs">
+		  <DependentUpon>CriarRotaForm.cs</DependentUpon>
+	  </Compile>
+
+	  <Compile Include="EditarRotaForm.cs">
+		  <SubType>Form</SubType>
+	  </Compile>
+	  <Compile Include="EditarRotaForm.Designer.cs">
+		  <DependentUpon>EditarRotaForm.cs</DependentUpon>
+	  </Compile>
+	  
+	  <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="LoginForm.resx">
       <DependentUpon>LoginForm.cs</DependentUpon>
