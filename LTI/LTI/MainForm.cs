@@ -216,12 +216,12 @@ namespace MikrotikManagerApp
             try
             {
                 var data = new Dictionary<string, object>
-{
-    { "name", name },
-    { "mode", "dynamic-keys" },
-    { "authentication-types", "wpa2-psk" },
-    { "wpa2-pre-shared-key", psk }
-};
+            {
+                { "name", name },
+                { "mode", "dynamic-keys" },
+                { "authentication-types", "wpa2-psk" },
+                { "wpa2-pre-shared-key", psk }
+            };
 
                 var options = new JsonSerializerOptions { PropertyNamingPolicy = null };
                 var json = JsonSerializer.Serialize(data, options);
@@ -684,13 +684,86 @@ namespace MikrotikManagerApp
             }
         }
 
-        private void btnConfigurarDNS_Click(object sender, EventArgs e)
+        private async void btnConfigurarDNS_Click(object sender, EventArgs e)
         {
-            using (var form = new ConfigurarDNSForm(_httpClient, _baseUrl))
+            string servidores = Prompt.ShowDialog(
+                "Digite os servidores DNS (ex: 8.8.8.8,8.8.4.4):",
+                "Configurar DNS");
+
+            if (string.IsNullOrWhiteSpace(servidores))
             {
-                form.ShowDialog();
+                MessageBox.Show("Deve indicar pelo menos um servidor DNS.", "Aviso");
+                return;
+            }
+
+            var data = new Dictionary<string, string>
+    {
+        { "servers", servidores }
+    };
+
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await _httpClient.PostAsync($"{_baseUrl}/rest/ip/dns/set", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("DNS configurado com sucesso!", "Sucesso");
+                }
+                else
+                {
+                    string erro = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Erro ao configurar DNS:\n{erro}", "Erro");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao configurar DNS: " + ex.Message, "Erro");
             }
         }
+
+        private async void btnToggleDNS_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Buscar config atual
+                var response = await _httpClient.GetAsync($"{_baseUrl}/rest/ip/dns");
+                response.EnsureSuccessStatusCode();
+
+                var json = await response.Content.ReadAsStringAsync();
+                var doc = JsonDocument.Parse(json);
+                var root = doc.RootElement;
+
+                bool currentAllowRemote = root.TryGetProperty("allow-remote-requests", out var prop) && prop.GetString() == "true";
+
+                // Inverter valor
+                var updatedConfig = new Dictionary<string, object>
+        {
+            { "allow-remote-requests", !currentAllowRemote }
+        };
+
+                var content = new StringContent(JsonSerializer.Serialize(updatedConfig), Encoding.UTF8, "application/json");
+                var setResponse = await _httpClient.PostAsync($"{_baseUrl}/rest/ip/dns/set", content);
+
+                if (setResponse.IsSuccessStatusCode)
+                {
+                    MessageBox.Show($"DNS {(currentAllowRemote ? "desativado" : "ativado")} com sucesso!", "Sucesso");
+                }
+                else
+                {
+                    var error = await setResponse.Content.ReadAsStringAsync();
+                    MessageBox.Show("Erro ao aplicar: " + error, "Erro");
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Erro ao comunicar com o Mikrotik: " + ex.Message, "Erro");
+            }
+        }
+
+
 
         private async void btnListarRotas_Click(object sender, EventArgs e)
         {

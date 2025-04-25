@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\LTI\\LTI\\MainForm.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:LTI\\LTI\\MainForm.Designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\LTI\\LTI\\MainForm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:LTI\\LTI\\MainForm.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
@@ -14,19 +18,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 206,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "MainForm.cs",
               "DocumentMoniker": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\LTI\\LTI\\MainForm.cs",
               "RelativeDocumentMoniker": "LTI\\LTI\\MainForm.cs",
               "ToolTip": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\LTI\\LTI\\MainForm.cs",
               "RelativeToolTip": "LTI\\LTI\\MainForm.cs",
-              "ViewState": "AgIAAMwCAAAAAAAAAAAkwOYCAAAjAAAAAAAAAA==",
+              "ViewState": "AgIAAH4DAAAAAAAAAAAwwKUDAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-04-23T19:24:09.244Z",
+              "WhenOpened": "2025-04-25T00:49:36.254Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "MainForm.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\LTI\\LTI\\MainForm.Designer.cs",
+              "RelativeDocumentMoniker": "LTI\\LTI\\MainForm.Designer.cs",
+              "ToolTip": "C:\\Users\\afons\\OneDrive\\Ambiente de Trabalho\\LTI\\Martins03\\LTI\\LTI\\LTI\\MainForm.Designer.cs",
+              "RelativeToolTip": "LTI\\LTI\\MainForm.Designer.cs",
+              "ViewState": "AgIAAKsBAAAAAAAAAAAuwOYBAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-04-25T00:37:17.557Z",
               "EditorCaption": ""
             }
           ]

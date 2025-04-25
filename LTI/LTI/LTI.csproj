@@ -110,13 +110,6 @@
 		  <DependentUpon>ConfigurarWirelessForm.cs</DependentUpon>
 	  </Compile>
 
-	  <Compile Include="ConfigurarDNSForm.cs">
-		  <SubType>Form</SubType>
-	  </Compile>
-	  <Compile Include="ConfigurarDNSForm.Designer.cs">
-		  <DependentUpon>ConfigurarDNSForm.cs</DependentUpon>
-	  </Compile>
-
 	  <Compile Include="CriarRotaForm.cs">
 		  <SubType>Form</SubType>
 	  </Compile>
