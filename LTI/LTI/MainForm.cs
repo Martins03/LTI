@@ -360,10 +360,10 @@ namespace MikrotikManagerApp
             if (string.IsNullOrWhiteSpace(address) || string.IsNullOrWhiteSpace(iface)) return;
 
             var data = new Dictionary<string, string>
-    {
-        { "address", address },
-        { "interface", iface }
-    };
+            {
+                { "address", address },
+                { "interface", iface }
+            };
 
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -395,10 +395,10 @@ namespace MikrotikManagerApp
             if (string.IsNullOrWhiteSpace(newAddr) || string.IsNullOrWhiteSpace(newIface)) return;
 
             var data = new Dictionary<string, string>
-    {
-        { "address", newAddr },
-        { "interface", newIface }
-    };
+            {
+                { "address", newAddr },
+                { "interface", newIface }
+            };
 
             var content = new StringContent(JsonSerializer.Serialize(data), System.Text.Encoding.UTF8, "application/json");
 
@@ -522,6 +522,7 @@ namespace MikrotikManagerApp
                 MessageBox.Show($"Erro ao apagar WireGuard: {error}");
             }
         }
+
 
         private async void btnListarDHCP_Click(object sender, EventArgs e)
         {

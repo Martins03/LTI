@@ -62,6 +62,8 @@
         private System.Windows.Forms.Button btnGetWG;
         private System.Windows.Forms.Button btnAddWG;
         private System.Windows.Forms.Button btnDeleteWG;
+        private System.Windows.Forms.Button btnAdicionarPeer;
+
 
         protected override void Dispose(bool disposing)
         {
@@ -477,11 +479,20 @@
             this.btnDeleteWG.Text = "Apagar WG";
             this.btnDeleteWG.Click += new System.EventHandler(this.btnDeleteWG_Click);
 
+            this.btnAdicionarPeer = new System.Windows.Forms.Button();
+            this.btnAdicionarPeer.Location = new System.Drawing.Point(474, 10);
+            this.btnAdicionarPeer.Size = new System.Drawing.Size(150, 30);
+            this.btnAdicionarPeer.Text = "Adicionar Peer";
+
+
+
             // Adiciona controles à aba
             this.tabWireGuard.Controls.Add(this.btnGetWG);
             this.tabWireGuard.Controls.Add(this.btnAddWG);
             this.tabWireGuard.Controls.Add(this.btnDeleteWG);
             this.tabWireGuard.Controls.Add(this.dgvWireGuard);
+            this.tabWireGuard.Controls.Add(this.btnAdicionarPeer);
+
         }
     }
 }
