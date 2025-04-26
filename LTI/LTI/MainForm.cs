@@ -480,10 +480,10 @@ namespace MikrotikManagerApp
             if (string.IsNullOrWhiteSpace(listenPort)) return;
 
             var data = new Dictionary<string, object>
-    {
-        {"name", name},
-        {"listen-port", listenPort}
-    };
+            {
+                {"name", name},
+                {"listen-port", listenPort}
+            };
 
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
@@ -522,6 +522,57 @@ namespace MikrotikManagerApp
                 MessageBox.Show($"Erro ao apagar WireGuard: {error}");
             }
         }
+
+        private async void btnAddWGPeer_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                string interfaceName = Prompt.ShowDialog("Interface WireGuard (ex: tomas):", "Interface");
+                string publicKey = Prompt.ShowDialog("Chave pública do cliente:", "Chave Pública");
+                string allowedAddress = Prompt.ShowDialog("Allowed Address (ex: 10.0.0.2/32):", "Allowed Address");
+                string comment = Prompt.ShowDialog("Comentário (opcional):", "Comentário");
+
+                if (string.IsNullOrWhiteSpace(interfaceName) || string.IsNullOrWhiteSpace(publicKey) || string.IsNullOrWhiteSpace(allowedAddress))
+                {
+                    MessageBox.Show("Todos os campos obrigatórios devem ser preenchidos.", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                var data = new Dictionary<string, object>
+                {
+                    { "interface", interfaceName },
+                    { "public-key", publicKey },
+                    { "allowed-address", allowedAddress },
+                    { "persistent-keepalive", "25" },
+                    { "disabled", "false" }
+                };
+
+                if (!string.IsNullOrWhiteSpace(comment))
+                {
+                    data["comment"] = comment;
+                }
+
+                var json = JsonSerializer.Serialize(data);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var response = await _httpClient.PostAsync($"{_baseUrl}/rest/interface/wireguard/peers/add", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    MessageBox.Show("Peer adicionado com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    var erro = await response.Content.ReadAsStringAsync();
+                    MessageBox.Show($"Erro: {response.StatusCode}\n{erro}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Erro inesperado: {ex.Message}", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
 
 
         private async void btnListarDHCP_Click(object sender, EventArgs e)
@@ -698,9 +749,9 @@ namespace MikrotikManagerApp
             }
 
             var data = new Dictionary<string, string>
-    {
-        { "servers", servidores }
-    };
+            {
+                { "servers", servidores }
+            };
 
             var json = JsonSerializer.Serialize(data);
             var content = new StringContent(json, Encoding.UTF8, "application/json");

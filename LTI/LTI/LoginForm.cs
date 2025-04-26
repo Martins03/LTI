@@ -14,17 +14,27 @@ namespace MikrotikManagerApp
         public LoginForm()
         {
             InitializeComponent();
+            cmbProtocol.SelectedIndex = 1; // Padrão para https
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
         {
-            BaseUrl = txtBaseUrl.Text;
-            string username = txtUsername.Text;
+            string protocol = cmbProtocol.SelectedItem?.ToString() ?? "https";
+            string host = txtBaseUrl.Text.Trim();
+            string username = txtUsername.Text.Trim();
             string password = txtPassword.Text;
 
+            // Construir URL base
+            BaseUrl = $"{protocol}://{host}";
+
             HttpClient = new HttpClient();
-            System.Net.ServicePointManager.ServerCertificateValidationCallback +=
-                (sender2, cert, chain, sslPolicyErrors) => true;
+
+            // Permitir certificados inválidos apenas em HTTPS
+            if (protocol == "https")
+            {
+                System.Net.ServicePointManager.ServerCertificateValidationCallback +=
+                    (sender2, cert, chain, sslPolicyErrors) => true;
+            }
 
             var authToken = Convert.ToBase64String(Encoding.ASCII.GetBytes($"{username}:{password}"));
             HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", authToken);
